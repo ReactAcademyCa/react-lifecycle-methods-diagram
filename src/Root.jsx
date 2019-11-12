@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import T from './i18n';
 
@@ -14,8 +14,10 @@ import { getMatchingLocale } from './i18n/i18n';
  * after each rerender. Seems like Chrome can't figure out proper sizes until
  * we give it width explicitly.
  */
-const fixChromeGridSizingBug = (ref) => {
-  if (!ref) { return; }
+function fixChromeGridSizingBug(ref) {
+  if (!ref) {
+    return;
+  }
   requestAnimationFrame(() => {
     /* eslint-disable no-param-reassign */
     ref.style.width = `${ref.clientWidth}px`;
@@ -23,76 +25,85 @@ const fixChromeGridSizingBug = (ref) => {
       ref.style.width = null;
     });
   });
-};
+}
 
-const getLocalStorage = (key, defaultValue) => (
-  localStorage && localStorage[key]
-    ? localStorage[key]
-    : defaultValue
-);
-
-const getLocalStorageFlag = (key, defaultValue) => getLocalStorage(key, defaultValue) === 'true';
-
-const latestReactVersion = [...supportedReactVersions][2];
+function getLocalStorage(key, defaultValue) {
+  return key in localStorage ? localStorage[key] : defaultValue;
+}
 
 const userLocale = getLocalStorage('locale', getMatchingLocale());
+const latestReactVersion =
+  supportedReactVersions[supportedReactVersions.length - 1];
 
-document.documentElement.setAttribute('lang', userLocale);
-export default class Root extends Component {
-  state = {
-    advanced: getLocalStorageFlag('showAdvanced', 'true'),
-    locale: userLocale,
-    reactVersion: getLocalStorage('reactVersion', latestReactVersion),
-  };
+function useLocalStorage(key, defaultValue) {
+  const [value, setValue] = useState(getLocalStorage(key, defaultValue));
 
-  toggleAdvanced = () => this.setState(prevState => ({
-    advanced: !prevState.advanced,
-  }), this.saveSettings);
-
-  toggleLocale = (event) => {
-    const { value } = event.target;
-    document.documentElement.setAttribute('lang', value);
-    this.setState({ locale: value }, this.saveSettings);
-  }
-
-  toggleReactVersion = (event) => {
-    const { value } = event.target;
-    this.setState({ reactVersion: value }, this.saveSettings);
-  }
-
-  saveSettings = () => {
-    const { advanced, locale, reactVersion } = this.state;
+  useEffect(() => {
     try {
-      localStorage.showAdvanced = advanced;
-      localStorage.locale = locale;
-      localStorage.reactVersion = reactVersion;
+      localStorage[key] = value;
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to safe settings.');
     }
-  }
+  }, [value]);
 
-  render() {
-    const { advanced, locale, reactVersion } = this.state;
+  return [value, setValue];
+}
 
-    return (
-      <div ref={ref => fixChromeGridSizingBug(ref)}>
-        <h1>
-          <T>
-            React lifecycle methods diagram
-          </T>
-        </h1>
-        <Options
-          advanced={advanced}
-          locale={locale}
-          reactVersion={reactVersion}
-          toggleAdvanced={this.toggleAdvanced}
-          toggleLocale={this.toggleLocale}
-          toggleReactVersion={this.toggleReactVersion}
-        />
-        <DiagramWithLegend advanced={advanced} reactVersion={reactVersion} />
-        <Footer />
-      </div>
+function useLocalStorageFlag(key, defaultValue) {
+  const [value, setValue] = useLocalStorage(key, defaultValue);
+  const valueBoolean = typeof value === 'boolean' ? value : value === 'true';
+  function onChange(valueOrFunction) {
+    setValue(
+      typeof valueOrFunction === 'function'
+        ? valueOrFunction(valueBoolean)
+        : valueOrFunction
     );
   }
+  return [valueBoolean, onChange];
+}
+
+export default function Root() {
+  const [advanced, setAdvanced] = useLocalStorageFlag('showAdvanced', false);
+  const [locale, setLocale] = useLocalStorage('locale', userLocale);
+  const [reactVersion, setReactVersion] = useLocalStorage(
+    'reactVersion',
+    latestReactVersion
+  );
+
+  function toggleAdvanced() {
+    setAdvanced(prevAdvanced => !prevAdvanced);
+  }
+
+  function toggleLocale(event) {
+    const { value } = event.target;
+    setLocale(value);
+  }
+
+  function toggleReactVersion(event) {
+    const { value } = event.target;
+    setReactVersion(value);
+  }
+
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', locale);
+  }, [locale]);
+
+  return (
+    <div ref={fixChromeGridSizingBug}>
+      <h1>
+        <T>React lifecycle methods diagram</T>
+      </h1>
+      <Options
+        advanced={advanced}
+        locale={locale}
+        reactVersion={reactVersion}
+        toggleAdvanced={toggleAdvanced}
+        toggleLocale={toggleLocale}
+        toggleReactVersion={toggleReactVersion}
+      />
+      <DiagramWithLegend advanced={advanced} reactVersion={reactVersion} />
+      <Footer />
+    </div>
+  );
 }

@@ -6,9 +6,9 @@ import './Method.less';
 
 import DocLink from './DocLink';
 
-const Method = ({
+export default function Method({
   col,
-  colspan,
+  colspan = 1,
   docname,
   endsInMiddle,
   main,
@@ -16,25 +16,27 @@ const Method = ({
   row,
   secondary,
   type,
-  isHooks
-}) => (
-  <li
-    className={mergeClassNames(
-      'Method',
-      docname && 'Method--hasLink',
-      endsInMiddle && 'Method--endsInMiddle',
-      main && 'Method--main',
-      secondary && 'Method--secondary',
-      type,
-    )}
-    style={{
-      gridColumn: `${col + 1} / span ${colspan}`,
-      gridRow: `${row * 3} / span 2`,
-    }}
-  >
-    <DocLink docname={docname} name={name} isHooks={isHooks} />
-  </li>
-);
+  isHooks,
+}) {
+  return (
+    <li
+      className={mergeClassNames(
+        'Method',
+        docname && 'Method--hasLink',
+        endsInMiddle && 'Method--endsInMiddle',
+        main && 'Method--main',
+        secondary && 'Method--secondary',
+        type
+      )}
+      style={{
+        gridColumn: `${col + 1} / span ${colspan}`,
+        gridRow: `${row * 3} / span 2`,
+      }}
+    >
+      <DocLink docname={docname} name={name} isHooks={isHooks} />
+    </li>
+  );
+}
 
 Method.propTypes = {
   col: PropTypes.number,
@@ -45,11 +47,5 @@ Method.propTypes = {
   name: PropTypes.string.isRequired,
   row: PropTypes.number.isRequired,
   secondary: PropTypes.bool,
-  type: PropTypes.oneOf(['render', 'pre-commit', 'commit', 'layout' ]),
+  type: PropTypes.oneOf(['render', 'pre-commit', 'commit', 'layout']),
 };
-
-Method.defaultProps = {
-  colspan: 1,
-};
-
-export default Method;
