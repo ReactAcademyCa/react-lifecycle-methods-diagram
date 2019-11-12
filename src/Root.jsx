@@ -33,14 +33,14 @@ const getLocalStorage = (key, defaultValue) => (
 
 const getLocalStorageFlag = (key, defaultValue) => getLocalStorage(key, defaultValue) === 'true';
 
-const latestReactVersion = [...supportedReactVersions].pop();
+const latestReactVersion = [...supportedReactVersions][2];
 
 const userLocale = getLocalStorage('locale', getMatchingLocale());
 
 document.documentElement.setAttribute('lang', userLocale);
 export default class Root extends Component {
   state = {
-    advanced: getLocalStorageFlag('showAdvanced', 'false'),
+    advanced: getLocalStorageFlag('showAdvanced', 'true'),
     locale: userLocale,
     reactVersion: getLocalStorage('reactVersion', latestReactVersion),
   };

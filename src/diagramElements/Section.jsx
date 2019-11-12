@@ -18,6 +18,7 @@ export default class Section extends Component {
     col: PropTypes.number.isRequired,
     colspan: PropTypes.number,
     name: PropTypes.string.isRequired,
+    hooks: PropTypes.bool
   };
 
   static defaultProps = {
@@ -49,7 +50,7 @@ export default class Section extends Component {
 
   render() {
     const {
-      advanced, col, colspan, name,
+      advanced, col, colspan, name, hooks
     } = this.props;
 
     const gridColumn = `${col + 1} / span ${colspan}`;
@@ -57,17 +58,17 @@ export default class Section extends Component {
     return (
       <>
         <section
-          className={mergeClassNames('Section', advanced && 'Section--advanced')}
+          className={mergeClassNames('Section', advanced && 'Section--advanced', hooks && 'Section__hooks')}
           style={{
             gridColumn,
-            gridRow: advanced ? '1 / span 23' : '1 / span 14',
+            gridRow: advanced ? (hooks ? '1 / span 26' : '1 / span 23')  : '1 / span 15',
           }}
         />
         <div
-          className={mergeClassNames('Section__highlight', advanced && 'Section__highlight--advanced')}
+          className={mergeClassNames('Section__highlight', advanced && (hooks ? 'Section__highlight--advanced_hooks' : 'Section__highlight--advanced'))}
           style={{
             gridColumn,
-            gridRow: advanced ? '16 / span 8' : '8 / span 7',
+            gridRow: advanced ? (hooks ? '8 / span 19' : '16 / span 8') : (hooks ? '5 / span 11' : '8 / span 8'),
           }}
         />
         <h3

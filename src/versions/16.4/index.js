@@ -1,3 +1,3 @@
-export Mounting from './Mounting';
-export Updating from './Updating';
-export Unmounting from './Unmounting';
+export {default as Mounting} from './Mounting';
+export {default as Updating} from './Updating';
+export {default as Unmounting} from './Unmounting';

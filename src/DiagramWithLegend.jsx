@@ -10,7 +10,7 @@ import { isReactVersion } from './propTypes';
 
 const DiagramWithLegend = ({ advanced, reactVersion }) => (
   <main className="DiagramWithLegend">
-    <Legend advanced={advanced} />
+    <Legend advanced={advanced} reactVersion={reactVersion} />
     <Diagram
       advanced={advanced}
       reactVersion={reactVersion}

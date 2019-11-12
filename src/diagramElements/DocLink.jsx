@@ -49,7 +49,7 @@ class DocLinkInternal extends Component {
   }
 
   render() {
-    const { docname } = this.props;
+    const { docname, isHooks } = this.props;
     const { translatedTitle: title, translatedName: name } = this.state;
 
     const children = splitUpperCase(name);
@@ -58,7 +58,9 @@ class DocLinkInternal extends Component {
       docname
         ? (
           <a
-            href={`https://reactjs.org/docs/react-component.html#${docname}`}
+            href={isHooks ?
+              `https://reactjs.org/docs/hooks-reference.html#${docname}` : 
+              `https://reactjs.org/docs/react-component.html#${docname}`}
             target="_blank"
             rel="noopener noreferrer"
             title={title}
